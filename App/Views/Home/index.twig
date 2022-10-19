@@ -4,5 +4,12 @@
 
 {% block body %}
     <h1>Welcome</h1>
-    <a href="/signup/new">Sign up</a>
+    {% if current_user %}
+        Hello {{ current_user.name }}<br>
+        <a href="/logout">Log out</a>
+    {% else %}
+        <a href="/signup/new">Sign up</a><br>
+        <a href="/login">Log in</a>
+    {% endif %}
+
 {% endblock %}

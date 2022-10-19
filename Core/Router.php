@@ -24,8 +24,6 @@ class Router
     {
         foreach ($this->routes as $route => $params){
             if (preg_match($route, $url, $matches)){
-                //$params =[];
-
                 foreach ($matches as $key => $match){
                     if(is_string($key)){
                         $params[$key] = $match;
@@ -43,33 +41,32 @@ class Router
         return $this->params;
     }
 
-    public function dispath($url)
+    public function dispatch($url)
     {
         $url = $this->removeQueryStringVariables($url);
-        if($this->match($url)){
+
+        if ($this->match($url)) {
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
             $controller = $this->getNamespace() . $controller;
 
-            if (class_exists($controller)){
-                $controllerObject = new $controller($this->params);
+            if (class_exists($controller)) {
+                $controller_object = new $controller($this->params);
 
                 $action = $this->params['action'];
                 $action = $this->convertToCamelCase($action);
 
-                if(is_callable([$controllerObject, $action])){
-                    $controllerObject->$action();
-                } else{
+                if (preg_match('/action$/i', $action) == 0) {
+                    $controller_object->$action();
 
-                    throw new \Exception("Method $action (in controller $controller) not found");
+                } else {
+                    throw new \Exception("Method $action in controller $controller cannot be called directly - remove the Action suffix to call this method");
                 }
             } else {
                 throw new \Exception("Controller class $controller not found");
-
             }
         } else {
-
-            throw new \Exception("No route matched.", 404);
+            throw new \Exception('No route matched.', 404);
         }
     }
 
@@ -78,7 +75,7 @@ class Router
         return str_replace(' ', '',ucwords(str_replace('-', ' ', $string)));
     }
 
-    protected function convertToCamelCase($string): string
+    protected function convertToCamelCase($string)
     {
         return lcfirst($this->convertToStudlyCaps($string));
     }

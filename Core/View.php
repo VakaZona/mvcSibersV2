@@ -10,7 +10,7 @@ class View
     {
         extract($args, EXTR_SKIP);
 
-        $file = "../App/Views/$view";
+        $file = dirname(__DIR__) . "/App/Views/$view";
 
         if(is_readable($file)){
             require $file;
@@ -23,8 +23,10 @@ class View
     {
         static $twig = null;
         if ($twig === null){
-            $loader = new FilesystemLoader('../App/Views');
+            $loader = new \Twig\Loader\FilesystemLoader(dirname(__DIR__) . '/App/Views');
             $twig = new Environment($loader);
+            $twig->addGlobal('current_user', \App\Auth::getUser());
+            $twig->addGlobal('flash_messages' , \App\Flash::getMessages());
         }
         echo $twig->render($template, $args);
     }

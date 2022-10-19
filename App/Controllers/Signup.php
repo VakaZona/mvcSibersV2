@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use Core\View;
+use App\Models\User;
 
 class Signup extends \Core\Controller
 {
@@ -14,6 +15,14 @@ class Signup extends \Core\Controller
     public function createAction()
     {
         $user = new User($_POST);
-        $user->save();
+        if ($user->save()){
+            $this->redirect('/signup/success');
+        } else {
+            View::renderTemplate('signup/new.twig', ['user' => $user]);
+        }
+    }
+    public function successAction()
+    {
+        View::renderTemplate('signup/success.twig');
     }
 }
