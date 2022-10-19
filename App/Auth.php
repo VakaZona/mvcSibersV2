@@ -36,6 +36,7 @@ class Auth
             );
         }
         session_destroy();
+        static::forgetLogin();
     }
 
 
@@ -68,6 +69,18 @@ class Auth
                 static::login($user, false);
                 return $user;
             }
+        }
+    }
+    protected static function forgetLogin()
+    {
+        $cookie = $_COOKIE['remember_me'] ?? false;
+
+        if ($cookie) {
+            $remembered_login = RememberedLogin::findByToken($cookie);
+            if ($remembered_login){
+                $remembered_login->delete();
+            }
+            setcookie('remembered_me', '', time()-3600);
         }
     }
 
