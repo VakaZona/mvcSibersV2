@@ -1,0 +1,28 @@
+{% extends 'base.twig' %}
+
+{% block titile %}Update{% endblock %}
+
+{% block body %}
+    <a href="/users">Back</a>
+    <a href="/">Home</a>
+    {% if user.errors is not empty %}
+        <p>Errors:</p>
+        <ul>
+            {% for error in user.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form action="/update/update" method="post">
+            <input type="hidden" name="id" value="{{ user.id }}" required autofocus placeholder="Name">
+            <p>Username</p>
+            <input type="text" name="name" value="{{ user.name }}" required>
+            <p>Email Do not change</p>
+            <input name="email" value="{{ user.email }}" required type="email" placeholder="Email address">
+            <p>Password</p>
+            <input type="password" name="password" value="" type="password" placeholder="Password">
+            <p>Repeat password</p>
+            <input name="password_confirmation" type="password" placeholder="Repeat password" required>
+            <button type="submit">Update</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.twig' %}
+
+{% block titile %}Users{% endblock %}
+
+{% block body %}
+    <a href="/">Home</a><br>
+    <p>Sort by: </p>
+    <form method="post" action="/users/sort">
+        <select name="sort">
+            <optgroup label="ID">
+                <option value="id ASC" >New Id</option>
+                <option value="id DESC" >Old Id</option>
+            </optgroup>
+            <optgroup label="Name">
+                <option value="name ASC" >A-Z</option>
+                <option value="name DESC" >Z-A</option>
+            </optgroup>
+
+        </select>
+        <button type="submit">Sort</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.password_hash}}</td>
+                <td><a href="/update/index?id= {{ user.id }}">Click</a></td>
+                <td><a href="/users/delete?id={{ user.id }}">X</a></td>
+            </tr>
+        {% endfor%}
+    </table>
+{% endblock %}

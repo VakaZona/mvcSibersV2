@@ -23,6 +23,7 @@ class Signup extends \Core\Controller
     }
     public function successAction()
     {
-        View::renderTemplate('signup/success.twig');
+        echo 'Success create, please log in';
+        View::renderTemplate('/login/new.twig');
     }
 }

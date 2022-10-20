@@ -33,14 +33,64 @@ class User extends \Core\Model
         }
         return false;
     }
-
-    public static function getAll()
+    public function update()
     {
-        $db = static::getDB();
-        $stmt = $db->query("SELECT id,name FROM users");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->validateUpdate();
+
+        if (empty($this->errors)){
+            $password_hash = password_hash($this->password, PASSWORD_DEFAULT);
+            $sql = "UPDATE users SET name=:name, password_hash=:password_hash, email=:email WHERE id=:id";
+            $db = static::getDB();
+            $stmt = $db->prepare($sql);
+            $stmt->bindValue(':name', $this->name, PDO::PARAM_STR);
+            $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+            $stmt->bindValue(':email', $this->email, PDO::PARAM_STR);
+            $stmt->bindValue(':password_hash', $password_hash, PDO::PARAM_STR);
+            return $stmt->execute();
+        }
+        return false;
     }
 
+    public static function getAll($sortFlag = [])
+    {
+        if (empty($sortFlag)){
+            $db = static::getDB();
+            $stmt = $db->query("SELECT * FROM users ORDER BY id");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $db = static::getDB();
+            $stmt = $db->query("SELECT * FROM users ORDER BY $sortFlag");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+    }
+    public function validateUpdate()
+    {
+        if ($this->name == ''){
+            $this->errors[] = 'Name is required'; // Не актульно, решено через HTML
+        }
+        if (filter_var($this->email, FILTER_VALIDATE_EMAIL) === false){
+            $this->errors[] = 'Invalid email';
+        }
+        // Не актуально для Update
+        /*if ($this->emailExists($this->email)){
+            $this->errors[] = 'email already taken';
+        }*/
+        if ($this->password != $this->password_confirmation){
+            $this->errors[] = 'Password must match confirmation';
+        }
+        if (strlen($this->password) < 6){
+            $this->errors[] = 'Please enter at least 6 characters for the password';
+        }
+        if (preg_match('/.*[a-z]+.*/i', $this->password) == 0){
+            $this->errors[] = 'Password needs at least one letter';
+        }
+        if (preg_match('/.*\d+.*/i', $this->password) == 0){
+            $this->errors[] = 'Password needs at least one number';
+        }
+    }
     public function validate()
     {
         if ($this->name == ''){
@@ -124,6 +174,14 @@ class User extends \Core\Model
         $stmt->bindValue(':user_id', $this->id, PDO::PARAM_INT);
         $stmt->bindValue(':expires_at', date('Y-m-d H:i:s',$this->expiry_timestamp), PDO::PARAM_STR);
 
+        return $stmt->execute();
+    }
+    public static function deleteUser($id)
+    {
+        $db = static::getDB();
+        $sql = "DELETE FROM users WHERE id=:id";
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 }
