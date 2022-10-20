@@ -20,7 +20,7 @@ class Update extends Authenticated
         if ($user->update()){
             $this->redirect('/users');
         } else {
-            View::renderTemplate('/update/index.twig', ['user' => $user]);
+            View::renderTemplate('/update/index.twig', ['user' => $user ]);
         }
     }
 }

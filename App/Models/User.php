@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Config;
 use App\Token;
 use PDO;
 
@@ -51,16 +52,33 @@ class User extends \Core\Model
         return false;
     }
 
-    public static function getAll($sortFlag = [])
+    public static function getAll($sortFlag = [], $page, $kol)
     {
+        $art = ($page * $kol) - $kol;
         if (empty($sortFlag)){
             $db = static::getDB();
-            $stmt = $db->query("SELECT * FROM users ORDER BY id");
+            $stmt = $db->query("SELECT * FROM users ORDER BY id LIMIT $art,$kol");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
+            switch ($sortFlag){
+                case 'id_ASC':
+                    $sort = 'id ASC';
+                    break;
+                case 'id_DESC':
+                    $sort = 'id DESC';
+                    break;
+                case 'name_ASC':
+                    $sort = 'name ASC';
+                    break;
+                case 'name_DESC':
+                    $sort = 'name DESC';
+                    break;
+                default:
+                    $sort = 'id ASC';
+            }
             $db = static::getDB();
-            $stmt = $db->query("SELECT * FROM users ORDER BY $sortFlag");
+            $stmt = $db->query("SELECT * FROM users ORDER BY $sort LIMIT $art,$kol");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -75,9 +93,17 @@ class User extends \Core\Model
             $this->errors[] = 'Invalid email';
         }
         // Не актуально для Update
-        /*if ($this->emailExists($this->email)){
+        /*
+        if ($this->emailExists($this->email)){
             $this->errors[] = 'email already taken';
         }*/
+
+        if((static::checkNewEmail($this->email, $this->id)) == 0){
+            if ($this->emailExists($this->email)) {
+                $this->errors[] = 'email already taken';
+            }
+        }
+
         if ($this->password != $this->password_confirmation){
             $this->errors[] = 'Password must match confirmation';
         }
@@ -183,5 +209,23 @@ class User extends \Core\Model
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+    public static function countRowInDb()
+    {
+        $db = static::getDB();
+        $sql = "SELECT COUNT(*) FROM users";
+        $stmt = $db->query($sql);
+        $count = $stmt->fetchColumn();
+        $stmt->execute();
+        return $count;
+    }
+    public static function checkNewEmail($email, $id)
+    {
+        $db = static::getDB();
+        $sql = "SELECT * FROM users WHERE id='$id' AND email='$email'";
+        $stmt = $db->query($sql);
+        $countEmail = $stmt->fetchColumn();
+        $stmt->execute();
+        return $countEmail;
     }
 }

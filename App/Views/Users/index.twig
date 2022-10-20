@@ -5,17 +5,16 @@
 {% block body %}
     <a href="/">Home</a><br>
     <p>Sort by: </p>
-    <form method="post" action="/users/sort">
-        <select name="sort">
+    <form method="get">
+        <select name="sort" >
             <optgroup label="ID">
-                <option value="id ASC" >New Id</option>
-                <option value="id DESC" >Old Id</option>
+                <option value="id_ASC" {{ sortFlag == "id_ASC" ? "selected" : "" }}>New Id</option>
+                <option value="id_DESC" {{ sortFlag == "id_DESC" ? "selected" : "" }}>Old Id</option>
             </optgroup>
             <optgroup label="Name">
-                <option value="name ASC" >A-Z</option>
-                <option value="name DESC" >Z-A</option>
+                <option value="name_ASC" {{ sortFlag == "name_ASC" ? "selected" : "" }}>A-Z</option>
+                <option value="name_DESC" {{ sortFlag == "name_DESC" ? "selected" : "" }}>Z-A</option>
             </optgroup>
-
         </select>
         <button type="submit">Sort</button>
     </form>
@@ -40,4 +39,8 @@
             </tr>
         {% endfor%}
     </table>
+    {% for page in 1..countPage %}
+        <a href="?page={{ page }}&sort={{ sortFlag }}">{{ page }}</a>
+    {% endfor %}
+
 {% endblock %}

@@ -14,9 +14,9 @@
         </ul>
     {% endif %}
     <form action="/update/update" method="post">
-            <input type="hidden" name="id" value="{{ user.id }}" required autofocus placeholder="Name">
+            <input type="hidden" name="id" value="{{ user.id }}" required  placeholder="Name">
             <p>Username</p>
-            <input type="text" name="name" value="{{ user.name }}" required>
+            <input type="text" name="name" value="{{ user.name }}" required placeholder="Name" autofocus>
             <p>Email Do not change</p>
             <input name="email" value="{{ user.email }}" required type="email" placeholder="Email address">
             <p>Password</p>
